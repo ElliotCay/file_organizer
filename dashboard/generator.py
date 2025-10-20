@@ -142,6 +142,47 @@ def generate_html(data: Dict) -> str:
             line-height: 1.5;
             padding: 0;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }}
+
+        /* Ambient reflection background */
+        body::before {{
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at 50% 0%,
+                rgba(0, 122, 255, 0.03) 0%,
+                transparent 40%
+            );
+            pointer-events: none;
+            z-index: -1;
+            animation: ambientPulse 8s ease-in-out infinite;
+        }}
+
+        @media (prefers-color-scheme: dark) {{
+            body::before {{
+                background: radial-gradient(
+                    circle at 50% 0%,
+                    rgba(0, 122, 255, 0.05) 0%,
+                    transparent 40%
+                );
+            }}
+        }}
+
+        @keyframes ambientPulse {{
+            0%, 100% {{
+                opacity: 0.5;
+                transform: scale(1);
+            }}
+            50% {{
+                opacity: 0.8;
+                transform: scale(1.05);
+            }}
         }}
 
         /* Liquid Glass Effect */
@@ -151,6 +192,73 @@ def generate_html(data: Dict) -> str:
             -webkit-backdrop-filter: blur(40px) saturate(180%);
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-md), var(--shadow-inset);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }}
+
+        /* Reflection Layer - subtle glossy effect */
+        .glass::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }}
+
+        @media (prefers-color-scheme: dark) {{
+            .glass::before {{
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.08) 0%,
+                    rgba(255, 255, 255, 0.02) 50%,
+                    transparent 100%
+                );
+            }}
+        }}
+
+        /* Dynamic light reflection that follows mouse */
+        .glass::after {{
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.05) 25%,
+                transparent 50%
+            );
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }}
+
+        @media (prefers-color-scheme: dark) {{
+            .glass::after {{
+                background: radial-gradient(
+                    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                    rgba(255, 255, 255, 0.12) 0%,
+                    rgba(255, 255, 255, 0.04) 25%,
+                    transparent 50%
+                );
+            }}
+        }}
+
+        .glass:hover::after {{
+            opacity: 1;
         }}
 
         .glass-secondary {{
@@ -175,6 +283,33 @@ def generate_html(data: Dict) -> str:
             display: flex;
             align-items: center;
             padding: 0 20px;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset,
+                        0 4px 12px rgba(0, 0, 0, 0.05);
+        }}
+
+        .menu-bar::after {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.08) 0%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }}
+
+        @media (prefers-color-scheme: dark) {{
+            .menu-bar::after {{
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.05) 0%,
+                    transparent 100%
+                );
+            }}
         }}
 
         .menu-bar h1 {{
@@ -209,6 +344,8 @@ def generate_html(data: Dict) -> str:
             max-width: 1400px;
             margin: 0 auto;
             padding: 68px 20px 40px;
+            perspective: 2000px;
+            perspective-origin: center top;
         }}
 
         /* Header Section */
@@ -227,6 +364,21 @@ def generate_html(data: Dict) -> str:
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            position: relative;
+            text-shadow: 0 4px 12px rgba(0, 122, 255, 0.1);
+        }}
+
+        .header h2::after {{
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.2) 0%, transparent 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.3;
+            filter: blur(20px);
         }}
 
         .header .week-date {{
@@ -249,7 +401,34 @@ def generate_html(data: Dict) -> str:
             border-radius: 50%;
             background: conic-gradient({health_color} {health_score * 3.6}deg, var(--glass-bg-secondary) 0deg);
             position: relative;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-lg),
+                        0 0 40px {health_color}40;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.4s ease;
+        }}
+
+        .health-score::before {{
+            content: '';
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 30% 30%,
+                rgba(255, 255, 255, 0.4) 0%,
+                transparent 50%
+            );
+            pointer-events: none;
+            opacity: 0.3;
+        }}
+
+        .health-score:hover {{
+            transform: scale(1.05) translateY(-4px);
+            box-shadow: var(--shadow-lg),
+                        0 0 60px {health_color}60,
+                        0 20px 40px rgba(0, 0, 0, 0.2);
         }}
 
         .health-score-inner {{
@@ -290,6 +469,14 @@ def generate_html(data: Dict) -> str:
             padding: 20px;
             border-radius: 16px;
             animation: fadeInUp 0.6s ease-out calc(0.1s * var(--i)) both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }}
+
+        .stat-card:hover {{
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-lg), var(--shadow-inset),
+                        0 0 40px rgba(0, 122, 255, 0.1);
         }}
 
         .stat-card .icon {{
@@ -327,6 +514,15 @@ def generate_html(data: Dict) -> str:
             border-radius: 24px;
             margin-bottom: 24px;
             animation: fadeInUp 0.6s ease-out calc(0.2s + 0.05s * var(--i)) both;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }}
+
+        .section:hover {{
+            transform: translateZ(20px) scale(1.005);
+            box-shadow: var(--shadow-lg), var(--shadow-inset),
+                        0 20px 60px rgba(0, 0, 0, 0.15);
         }}
 
         .section h2 {{
@@ -374,12 +570,56 @@ def generate_html(data: Dict) -> str:
             gap: 16px;
             border-left: 4px solid transparent;
             animation: fadeInLeft 0.6s ease-out calc(0.1s * var(--i)) both;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }}
+
+        /* Edge highlight effect */
+        .insight-card::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }}
+
+        @media (prefers-color-scheme: dark) {{
+            .insight-card::before {{
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.2) 0%,
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.05) 100%
+                );
+            }}
+        }}
+
+        .insight-card:hover::before {{
+            opacity: 1;
         }}
 
         .insight-card:hover {{
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px) translateZ(10px);
+            box-shadow: var(--shadow-lg),
+                        0 0 30px rgba(0, 122, 255, 0.08);
         }}
 
         .insight-card.warning {{
@@ -430,11 +670,38 @@ def generate_html(data: Dict) -> str:
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s ease;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }}
+
+        .large-items-list li::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            transition: left 0.5s ease;
         }}
 
         .large-items-list li:hover {{
-            transform: translateX(4px);
+            transform: translateX(6px) translateZ(5px);
+            box-shadow: var(--shadow-md),
+                        0 0 20px rgba(0, 122, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }}
+
+        .large-items-list li:hover::before {{
+            left: 100%;
         }}
 
         .large-items-list .item-name {{
@@ -680,6 +947,129 @@ def generate_html(data: Dict) -> str:
         Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif";
         Chart.defaults.font.weight = 600;
         Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+
+        // Apple-style Mouse Reflection System
+        const glassElements = document.querySelectorAll('.glass, .stat-card, .section, .insight-card');
+
+        glassElements.forEach(element => {{
+            element.addEventListener('mousemove', (e) => {{
+                const rect = element.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                // Update CSS variables for dynamic reflection
+                element.style.setProperty('--mouse-x', `${{x}}%`);
+                element.style.setProperty('--mouse-y', `${{y}}%`);
+
+                // Subtle 3D tilt effect (Apple-style parallax)
+                const tiltX = ((e.clientY - rect.top) / rect.height - 0.5) * 3;
+                const tiltY = ((e.clientX - rect.left) / rect.width - 0.5) * -3;
+
+                element.style.transform = `perspective(1000px) rotateX(${{tiltX}}deg) rotateY(${{tiltY}}deg) scale(1.005)`;
+            }});
+
+            element.addEventListener('mouseleave', () => {{
+                element.style.transform = '';
+                element.style.setProperty('--mouse-x', '50%');
+                element.style.setProperty('--mouse-y', '50%');
+            }});
+        }});
+
+        // Global spotlight effect that follows cursor
+        const createSpotlight = () => {{
+            const spotlight = document.createElement('div');
+            spotlight.style.cssText = `
+                position: fixed;
+                width: 600px;
+                height: 600px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(0, 122, 255, 0.03) 0%, transparent 70%);
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: screen;
+                transition: opacity 0.3s ease;
+                opacity: 0;
+            `;
+            document.body.appendChild(spotlight);
+
+            document.addEventListener('mousemove', (e) => {{
+                spotlight.style.left = `${{e.clientX - 300}}px`;
+                spotlight.style.top = `${{e.clientY - 300}}px`;
+                spotlight.style.opacity = '1';
+            }});
+
+            document.addEventListener('mouseleave', () => {{
+                spotlight.style.opacity = '0';
+            }});
+        }};
+
+        createSpotlight();
+
+        // Parallax scroll effect for sections
+        const parallaxElements = document.querySelectorAll('.section, .stat-card');
+        let ticking = false;
+
+        const updateParallax = () => {{
+            const scrollY = window.scrollY;
+
+            parallaxElements.forEach((element, index) => {{
+                const rect = element.getBoundingClientRect();
+                const elementTop = rect.top + scrollY;
+                const elementHeight = rect.height;
+                const windowHeight = window.innerHeight;
+
+                // Calculate if element is in viewport
+                if (rect.top < windowHeight && rect.bottom > 0) {{
+                    // Calculate parallax offset (subtle)
+                    const scrollProgress = (scrollY - elementTop + windowHeight) / (windowHeight + elementHeight);
+                    const parallaxOffset = (scrollProgress - 0.5) * 20; // Max 20px movement
+
+                    // Apply subtle parallax transform
+                    const currentTransform = element.style.transform;
+                    if (!currentTransform.includes('rotateX') && !currentTransform.includes('rotateY')) {{
+                        element.style.transform = `translateY(${{parallaxOffset * -1}}px)`;
+                    }}
+                }}
+            }});
+
+            ticking = false;
+        }};
+
+        const onScroll = () => {{
+            if (!ticking) {{
+                window.requestAnimationFrame(updateParallax);
+                ticking = true;
+            }}
+        }};
+
+        window.addEventListener('scroll', onScroll, {{ passive: true }});
+        updateParallax(); // Initial call
+
+        // Add shimmer effect to stat cards on load
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {{
+            setTimeout(() => {{
+                card.style.animation = `fadeInUp 0.6s ease-out, shimmer 2s ease-in-out ${{index * 0.2}}s`;
+            }}, 100);
+        }});
+
+        // Add CSS for shimmer animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shimmer {{
+                0% {{
+                    box-shadow: var(--shadow-md), var(--shadow-inset);
+                }}
+                50% {{
+                    box-shadow: var(--shadow-lg), var(--shadow-inset),
+                                0 0 30px rgba(0, 122, 255, 0.15);
+                }}
+                100% {{
+                    box-shadow: var(--shadow-md), var(--shadow-inset);
+                }}
+            }}
+        `;
+        document.head.appendChild(style);
 
         // Storage Donut Chart
         const storageData = """ + charts["storage_categories"] + """;
