@@ -119,15 +119,29 @@ def generate_html(data: Dict) -> str:
             --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.8);
         }}
 
+        /* Dark Mode - Optimized for non-OLED screens */
+        [data-theme="dark"] {{
+            --glass-bg: rgba(28, 28, 30, 0.72);
+            --glass-bg-secondary: rgba(44, 44, 46, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #f5f5f7;
+            --text-secondary: #98989d;
+            --bg-primary: #1a1a1a;  /* Dark gray instead of pure black for non-OLED */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.1);
+        }}
+
+        /* Fallback: respect system preference if no manual selection */
         @media (prefers-color-scheme: dark) {{
-            :root {{
-                /* Liquid Glass Colors - Dark Mode */
+            :root:not([data-theme="light"]) {{
                 --glass-bg: rgba(28, 28, 30, 0.72);
                 --glass-bg-secondary: rgba(44, 44, 46, 0.85);
                 --glass-border: rgba(255, 255, 255, 0.12);
                 --text-primary: #f5f5f7;
                 --text-secondary: #98989d;
-                --bg-primary: #000000;
+                --bg-primary: #1a1a1a;
                 --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
                 --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
                 --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
@@ -203,6 +217,43 @@ def generate_html(data: Dict) -> str:
         @keyframes pulse {{
             0%, 100% {{ opacity: 1; }}
             50% {{ opacity: 0.4; }}
+        }}
+
+        /* Theme Toggle Button */
+        .theme-toggle {{
+            margin-left: 16px;
+            padding: 8px 16px;
+            background: var(--glass-bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }}
+
+        .theme-toggle:hover {{
+            background: var(--glass-bg);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }}
+
+        .theme-toggle:active {{
+            transform: translateY(0);
+        }}
+
+        .theme-icon {{
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }}
+
+        .theme-toggle:hover .theme-icon {{
+            transform: rotate(20deg);
         }}
 
         .container {{
@@ -564,6 +615,10 @@ def generate_html(data: Dict) -> str:
             <span class="refresh-dot"></span>
             <span>Auto-refresh: 5min</span>
         </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+            <span class="theme-icon" id="themeIcon">🌙</span>
+            <span id="themeText">Dark</span>
+        </button>
     </div>
 
     <div class="container">
@@ -676,6 +731,50 @@ def generate_html(data: Dict) -> str:
     </div>
 
     <script>
+        // Theme Management
+        function toggleTheme() {{
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        }}
+
+        function updateThemeButton(theme) {{
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (theme === 'dark') {{
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }} else {{
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            }}
+        }}
+
+        function initTheme() {{
+            const html = document.documentElement;
+            const savedTheme = localStorage.getItem('theme');
+
+            if (savedTheme) {{
+                // User has a saved preference
+                html.setAttribute('data-theme', savedTheme);
+                updateThemeButton(savedTheme);
+            }} else {{
+                // No saved preference, use system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const defaultTheme = prefersDark ? 'dark' : 'light';
+                html.setAttribute('data-theme', defaultTheme);
+                updateThemeButton(defaultTheme);
+            }}
+        }}
+
+        // Initialize theme on page load
+        initTheme();
+
         // Chart.js default config
         Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif";
         Chart.defaults.font.weight = 600;
