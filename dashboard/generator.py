@@ -191,8 +191,14 @@ def generate_html(data: Dict) -> str:
             letter-spacing: -0.02em;
         }}
 
-        .auto-refresh-indicator {{
+        .menu-controls {{
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }}
+
+        .auto-refresh-indicator {{
             font-size: 0.85em;
             color: var(--text-secondary);
             display: flex;
@@ -211,6 +217,67 @@ def generate_html(data: Dict) -> str:
         @keyframes pulse {{
             0%, 100% {{ opacity: 1; }}
             50% {{ opacity: 0.4; }}
+        }}
+
+        /* Dark Mode Toggle */
+        .theme-toggle {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }}
+
+        .toggle-switch {{
+            position: relative;
+            width: 51px;
+            height: 31px;
+            background: var(--glass-bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }}
+
+        .toggle-switch::before {{
+            content: '';
+            position: absolute;
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: #fff;
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }}
+
+        .theme-toggle.dark .toggle-switch {{
+            background: var(--accent-blue);
+        }}
+
+        .theme-toggle.dark .toggle-switch::before {{
+            transform: translateX(20px);
+        }}
+
+        .theme-icon {{
+            font-size: 1.2em;
+            transition: opacity 0.3s ease;
+        }}
+
+        .theme-toggle .theme-icon.light {{
+            opacity: 1;
+        }}
+
+        .theme-toggle .theme-icon.dark {{
+            opacity: 0.4;
+        }}
+
+        .theme-toggle.dark .theme-icon.light {{
+            opacity: 0.4;
+        }}
+
+        .theme-toggle.dark .theme-icon.dark {{
+            opacity: 1;
         }}
 
         .container {{
@@ -568,9 +635,16 @@ def generate_html(data: Dict) -> str:
     <!-- Transparent Menu Bar -->
     <div class="menu-bar glass">
         <h1>📊 Usage Dashboard</h1>
-        <div class="auto-refresh-indicator">
-            <span class="refresh-dot"></span>
-            <span>Auto-refresh: 5min</span>
+        <div class="menu-controls">
+            <div class="theme-toggle" id="themeToggle">
+                <span class="theme-icon light">☀️</span>
+                <div class="toggle-switch"></div>
+                <span class="theme-icon dark">🌙</span>
+            </div>
+            <div class="auto-refresh-indicator">
+                <span class="refresh-dot"></span>
+                <span>Auto-refresh: 5min</span>
+            </div>
         </div>
     </div>
 
@@ -684,6 +758,48 @@ def generate_html(data: Dict) -> str:
     </div>
 
     <script>
+        // ==================== THEME MANAGEMENT ====================
+
+        // Detect system preference
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // Get saved preference from localStorage
+        const savedTheme = localStorage.getItem('theme');
+
+        // Determine current theme: manual choice > system preference
+        let currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+        // Apply theme on page load
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.style.colorScheme = 'dark';
+                document.getElementById('themeToggle').classList.add('dark');
+            } else {
+                document.documentElement.style.colorScheme = 'light';
+                document.getElementById('themeToggle').classList.remove('dark');
+            }
+        }
+
+        // Apply initial theme immediately (before page fully loads)
+        applyTheme(currentTheme);
+
+        // Toggle theme on click
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        });
+
+        // Listen for system preference changes (only if user hasn't manually set theme)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                currentTheme = e.matches ? 'dark' : 'light';
+                applyTheme(currentTheme);
+            }
+        });
+
+        // ==================== CHART.JS CONFIG ====================
+
         // Chart.js default config
         Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif";
         Chart.defaults.font.weight = 600;
