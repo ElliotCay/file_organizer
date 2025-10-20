@@ -114,9 +114,18 @@ def generate_html(data: Dict) -> str:
             --accent-blue: #007AFF;
             --accent-purple: #5856D6;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-            --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.8);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.04);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.06);
+
+            /* Liquid Glass Blur Hierarchy (based on Apple SwiftUI materials) */
+            --blur-ultra-thin: blur(8px);
+            --blur-thin: blur(12px);
+            --blur-regular: blur(18px);
+            --blur-thick: blur(24px);
+
+            /* Corner Radius (Apple standard) */
+            --corner-radius: 15px;
+            --corner-radius-glass: 24px;
         }}
 
         @media (prefers-color-scheme: dark) {{
@@ -124,14 +133,13 @@ def generate_html(data: Dict) -> str:
                 /* Liquid Glass Colors - Dark Mode */
                 --glass-bg: rgba(28, 28, 30, 0.72);
                 --glass-bg-secondary: rgba(44, 44, 46, 0.85);
-                --glass-border: rgba(255, 255, 255, 0.12);
+                --glass-border: rgba(255, 255, 255, 0.10);
                 --text-primary: #f5f5f7;
                 --text-secondary: #98989d;
                 --bg-primary: #000000;
                 --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-                --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-                --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
-                --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.1);
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.2);
+                --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
             }}
         }}
 
@@ -147,16 +155,16 @@ def generate_html(data: Dict) -> str:
         /* Liquid Glass Effect */
         .glass {{
             background: var(--glass-bg);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            backdrop-filter: var(--blur-regular);
+            -webkit-backdrop-filter: var(--blur-regular);
             border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-md), var(--shadow-inset);
+            box-shadow: var(--shadow-md);
         }}
 
         .glass-secondary {{
             background: var(--glass-bg-secondary);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: var(--blur-thin);
+            -webkit-backdrop-filter: var(--blur-thin);
             border: 1px solid var(--glass-border);
         }}
 
@@ -168,8 +176,8 @@ def generate_html(data: Dict) -> str:
             right: 0;
             height: 48px;
             background: var(--glass-bg);
-            backdrop-filter: blur(60px) saturate(180%);
-            -webkit-backdrop-filter: blur(60px) saturate(180%);
+            backdrop-filter: var(--blur-thick);
+            -webkit-backdrop-filter: var(--blur-thick);
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex;
@@ -282,13 +290,13 @@ def generate_html(data: Dict) -> str:
         .stats-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            gap: 14px;
             margin-bottom: 24px;
         }}
 
         .stat-card {{
             padding: 20px;
-            border-radius: 16px;
+            border-radius: var(--corner-radius);
             animation: fadeInUp 0.6s ease-out calc(0.1s * var(--i)) both;
         }}
 
@@ -324,7 +332,7 @@ def generate_html(data: Dict) -> str:
         /* Sections */
         .section {{
             padding: 32px;
-            border-radius: 24px;
+            border-radius: var(--corner-radius-glass);
             margin-bottom: 24px;
             animation: fadeInUp 0.6s ease-out calc(0.2s + 0.05s * var(--i)) both;
         }}
@@ -365,13 +373,13 @@ def generate_html(data: Dict) -> str:
 
         .insight-card {{
             background: var(--glass-bg-secondary);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px;
+            backdrop-filter: var(--blur-thin);
+            -webkit-backdrop-filter: var(--blur-thin);
+            border-radius: var(--corner-radius);
             padding: 20px;
             display: flex;
             align-items: flex-start;
-            gap: 16px;
+            gap: 14px;
             border-left: 4px solid transparent;
             animation: fadeInLeft 0.6s ease-out calc(0.1s * var(--i)) both;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -422,8 +430,8 @@ def generate_html(data: Dict) -> str:
 
         .large-items-list li {{
             background: var(--glass-bg-secondary);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: var(--blur-thin);
+            -webkit-backdrop-filter: var(--blur-thin);
             padding: 16px 20px;
             border-radius: 12px;
             margin-bottom: 12px;
@@ -462,7 +470,7 @@ def generate_html(data: Dict) -> str:
             right: 20px;
             max-width: 400px;
             padding: 20px 24px;
-            border-radius: 16px;
+            border-radius: var(--corner-radius);
             box-shadow: var(--shadow-lg);
             z-index: 999;
             animation: slideInRight 0.4s ease-out;
